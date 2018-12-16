@@ -1,0 +1,1082 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1040{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil Consolas;}{\f2\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red0\green0\blue0;\red128\green128\blue128;\red163\green21\blue21;\red43\green145\blue175;\red0\green128\blue0;\red128\green0\blue0;\red255\green0\blue255;\red46\green117\blue182;\red255\green255\blue0;\red128\green0\blue128;\red255\green0\blue0;}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sa200\sl276\slmult1\lang16\ul\f0\fs18 ADO.NET\line\pard\sl240\slmult1\line\ulnone NuGet:         system.data.sqlclient v4.5.1     system.data.Common  v4.3.0\line\cf1\f1 using\cf2  System.Data;\par
+\cf1 using\cf2  System.Data.SqlClient;\cf0\f0\line\par
+\pard\sa200\sl276\slmult1 *********************************CODICE TABELE********************************\par
+\pard\sl240\slmult1\cf1\f1 CREATE\cf2  \cf1 TABLE\cf2  [dbo]\cf3 .\cf2 [Giocatori]\cf1  \cf3 (\cf2\par
+    [IdGiocatore] \cf1 INT\cf2            \cf1 IDENTITY \cf3 (\cf2 1\cf3 ,\cf2  1\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Nome]        \cf1 NVARCHAR \cf3 (\cf2 50\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Cognome]     \cf1 NVARCHAR \cf3 (\cf2 50\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [DataNascita] \cf1 DATE\cf2           \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Nickname]    \cf1 NVARCHAR \cf3 (\cf2 50\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Livello]     \cf1 INT\cf2            \cf3 NULL,\cf2\par
+    \cf1 PRIMARY\cf2  \cf1 KEY\cf2  \cf1 CLUSTERED \cf3 (\cf2 [IdGiocatore] \cf1 ASC\cf3 ),\cf2\par
+    \cf1 CHECK \cf3 (\cf2 [Livello]\cf3 <=(\cf2 6\cf3 )),\cf2\par
+    \cf1 CHECK \cf3 (\cf2 [Livello]\cf3 >=(\cf2 0\cf3 ))\cf2\par
+\cf3 );\par
+\par
+\cf1\par
+CREATE\cf2  \cf1 TABLE\cf2  [dbo]\cf3 .\cf2 [Partite]\cf1  \cf3 (\cf2\par
+    [IdPartita] \cf1 INT\cf2            \cf1 IDENTITY \cf3 (\cf2 1\cf3 ,\cf2  1\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Tipo]      \cf1 NVARCHAR \cf3 (\cf2 50\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Campo]     \cf1 INT\cf2            \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [OraInizio] \cf1 DATETIME\cf2       \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [OraFine]   \cf1 DATETIME\cf2       \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Risultato] \cf1 NVARCHAR \cf3 (\cf2 50\cf3 )\cf2  \cf3 NULL,\cf2\par
+    \cf1 PRIMARY\cf2  \cf1 KEY\cf2  \cf1 CLUSTERED \cf3 (\cf2 [IdPartita] \cf1 ASC\cf3 )\cf2\par
+\cf3 );\par
+\par
+\cf1\par
+CREATE\cf2  \cf1 TABLE\cf2  [dbo]\cf3 .\cf2 [Prenotazioni]\cf1  \cf3 (\cf2\par
+    [IdPartita]   \cf1 INT\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [IdGiocatore] \cf1 INT\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    \cf1 CONSTRAINT\cf2  [PK_Prenotazioni] \cf1 PRIMARY\cf2  \cf1 KEY\cf2  \cf1 CLUSTERED \cf3 (\cf2 [IdPartita] \cf1 ASC\cf3 ,\cf2  [IdGiocatore] \cf1 ASC\cf3 ),\cf2\par
+    \cf1 CONSTRAINT\cf2  [FK_Prenotazioni_Giocatori] \cf1 FOREIGN\cf2  \cf1 KEY \cf3 (\cf2 [IdGiocatore]\cf3 )\cf2  \cf1 REFERENCES\cf2  [dbo]\cf3 .\cf2 [Giocatori]\cf1  \cf3 (\cf2 [IdGiocatore]\cf3 ),\cf2\par
+    \cf1 CONSTRAINT\cf2  [FK_Prenotazioni_Partite] \cf1 FOREIGN\cf2  \cf1 KEY \cf3 (\cf2 [IdPartita]\cf3 )\cf2  \cf1 REFERENCES\cf2  [dbo]\cf3 .\cf2 [Partite]\cf1  \cf3 (\cf2 [IdPartita]\cf3 )\cf2\par
+\cf3 );\par
+\pard\sa200\sl276\slmult1\par
+\cf0\f0 *********************************PROGRAM.CS********************************\par
+\pard\sl240\slmult1\cf2\f1 Console.WriteLine(\cf4 "               **************  BUONGIORNO!  ***************"\cf2 );\par
+            Console.WriteLine(\cf4 "       Benvenuto nel nostro gestionale del campo da basket di Pegli 2"\cf2 );\par
+            Console.WriteLine(\cf4 "\\n\\nPremi invio per iniziare\\n"\cf2 );\par
+            Console.ReadLine();\par
+            TorreControllo Controllo = \cf1 new\cf2  TorreControllo();\par
+            \cf1 string\cf2  digit = \cf1 null\cf2 ;\par
+            \cf1 do\cf2\par
+            \{\par
+                Console.WriteLine(\cf4 "\\nChe azione vuoi eseguire?\\n"\cf2  +\par
+                    \cf4 " p -> Aggiungi nuova Partita\\n"\cf2  +\par
+                    \cf4 " g -> Aggiungi nuovo Giocatore\\n"\cf2  +\par
+                    \cf4 " c -> Cerca Partita per data\\n"\cf2  +\par
+                    \cf4 " m -> Cerca giocatori per et\f2\'e0\f1\\n"\cf2  +\par
+                    \cf4 " lg -> Lista di giocatori nel database\\n"\cf2  +\par
+                    \cf4 " pp -> Partite in programma\\n"\cf2  +\par
+                    \cf4 " del -> Cancella un giocatore\\n"\cf2  +\par
+                    \cf4 " exit -> (TERMINA)\\n"\cf2 );\par
+                digit = Console.ReadLine();\par
+                \cf1 switch\cf2  (digit)\par
+                \{\par
+                    \cf1 case\cf2  \cf4 "p"\cf2 :\par
+                    \cf1 case\cf2  \cf4 "P"\cf2 :\par
+                        \{\par
+                            Controllo.IscrizionePartita();\par
+                            \cf1 break\cf2 ;\par
+                        \}\par
+                    \cf1 case\cf2  \cf4 "g"\cf2 :\par
+                    \cf1 case\cf2  \cf4 "G"\cf2 :\par
+                        \{\par
+                            Controllo.IscrizioneGiocatore();\par
+                            \cf1 break\cf2 ;\par
+                        \}\cf0\f0\par
+\cf2\lang1040\f2\tab\tab  \lang16\f1  \}\lang1040\f2\tab\tab\tab\lang16\f1\par
+            \}\par
+            \cf1 while\cf2  (digit != \cf4 "exit"\cf2 );\par
+        \}\lang1040\f2 --> chiusura metodo \cf1\f1 static\cf2  \cf1 void\cf2  Main(\cf1 string\cf2 [] args)\cf0\lang16\ul\f0\par
+\pard\sa200\sl276\slmult1\par
+\ulnone *********************************GIOCATORE.CS********************************\ul\par
+\pard\sl240\slmult1\cf1\ulnone\f1 class\cf2  \cf5 Giocatore\cf2\par
+    \{\par
+        \cf1 public\cf2  \cf1 int\cf2  idGiocatore \{ \cf1 get\cf2 ; \}\par
+        \cf1 public\cf2  \cf1 string\cf2  nome \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  \cf1 string\cf2  cognome \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  DateTime dataNascita \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  \cf1 string\cf2  nickname \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  \cf1 int\cf2  livello \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \par
+        \cf1 public\cf2  Giocatore(\cf1 string\cf2  nome, \cf1 string\cf2  cognome, DateTime dataNascita, \cf1 string\cf2  nickname, \cf1 int\cf2  livello)\par
+        \{\par
+            \cf1 this\cf2 .nome = nome;\par
+            \cf1 this\cf2 .cognome = cognome;\par
+            \cf1 this\cf2 .dataNascita = dataNascita;\par
+            \cf1 this\cf2 .nickname = nickname;\par
+            \cf1 this\cf2 .livello = livello;\par
+        \}\par
+    \}\cf0\ul\f0\par
+\pard\sa200\sl276\slmult1\par
+\ulnone *********************************TORRECONTROLLO.CS********************************\par
+\pard\sl240\slmult1\cf1\f1 namespace\cf2  Ado_Basket\par
+\{\par
+   \par
+    \cf1 static\cf2  \cf1 class\cf2  \cf5 Stringa\cf2  \cf6 // in una classe statica avulsa dal resto, cos\f2\'ec\f1  la puoi richiamare quando \lang1040\f2  \tab\tab\tab\tab\lang16\f1 e dove vuoi\cf2\par
+    \{\par
+        \cf1 public\cf2  \cf1 static\cf2  \cf1 string\cf2  CONN_STRING = \cf7 @"Data Source=(localdb)\\MSSQLLocalDB;\par
+                                        Initial Catalog=BasketStation;Integrated \lang1040\f2\tab                                    \tab\tab\tab\lang16\f1 Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;\par
+                                        ApplicationIntent=ReadWrite;MultiSubnetFailover=False"\cf2 ;\par
+    \}\par
+\par
+    \cf1 class\cf2  \cf5 TorreControllo\cf2\par
+    \{\par
+        \cf6 //  Q U E R Y  //\cf2\par
+        \cf6 //Stampami le partite di quel giorno\cf2\par
+        \cf1 private\cf2  \cf1 static\cf2  \cf1 string\cf2  STAMPA_PARTITE_IN_DATA = \cf7 @"\par
+            SELECT *\par
+            FROM dbo.Partite as P\par
+            WHERE  P.OraInizio BETWEEN @Data AND DATEADD(day,1,@Data)\par
+         "\cf2 ;\cf0\ul\f0\par
+\ulnone\tab\cf6\f1 //Aggiungi una partita nel database\cf2\par
+        \cf6 //PER INSERIRE I VALORI ANCHE NELLA TABELLA DI CONGIUNZIONE PROBAB SERVE UN'ALTRA QUERY CHE USI LO SCOPE IDENTITY O ALTRO COSI DA PIGLIARSI LE ULTIME PK\cf2\par
+        \cf1 private\cf2  \cf1 static\cf2  \cf1 string\cf2  AGGIUNGI_PARTITA = \cf7 @"\par
+            INSERT INTO dbo.Partite (Tipo,Campo,OraInizio,OraFine,Risultato)\par
+            VALUES (@Tipo,@Campo,@DataIn,@DataF,@Ris) \par
+            SELECT SCOPE_IDENTITY()\par
+         "\cf2 ;\par
+        \cf6 // INSERT INTO dbo.Prenotazioni (IdPartita,IdGiocatore) VALUES (@Tipo,@Campo,@DataIn,@DataF,@Ris);  //capire come inserire valori in pi\f2\'f9\f1  tabelle\cf2\par
+        \cf6 //Aggiungi un giocatore al database\cf2\par
+        \cf1 private\cf2  \cf1 static\cf2  \cf1 string\cf2  ISCRIVI_GIOCATORI = \cf7 @"\par
+            INSERT INTO Giocatori(Nome,Cognome,DataNascita,Nickname,Livello) \par
+            values (@Nome,@Cognome,@DataNascita,@Nickname,@Livello)\par
+         "\cf2 ;\par
+\par
+        \cf6 //Guardami se quel giorno a quell'ora il campo \f2\'e8\f1  libero\cf2\par
+        \cf1 private\cf2  \cf1 static\cf2  \cf1 string\cf2  TROVA_PARTITA_DATA_ORA = \cf7 @"\par
+            SELECT *\par
+            FROM dbo.Partite as P\par
+            WHERE  P.OraInizio BETWEEN @Data AND @Data\par
+         "\cf2 ;\par
+\par
+        \cf6 //Aggiungimi nella tabella di congiunzione id partita e giocatori\cf2\par
+        \cf1 public\cf2  \cf1 static\cf2  \cf1 string\cf2  RIEMPI_TABELLA_UNIONE = \cf7 @"\par
+            INSERT INTO dbo.Prenotazioni (IdGiocatore,IdPartita) \par
+            values (@idGiocatore,@idPartita)\par
+         "\cf2 ;\par
+\par
+        \cf6 //Calcolami il livello medio dei giocatori di et\f2\'e0\f1  inferiore a..\cf2\par
+        \cf1 private\cf2  \cf1 static\cf2  \cf1 string\cf2  TROVA_LIVELLO_MEDIO = \cf7 @"\par
+            SELECT AVG(Livello) as media\par
+            FROM dbo.Giocatori\par
+            where DATEDIFF(year, DataNascita, SYSDATETIME()) < @Anni\par
+         "\cf2 ;\par
+\par
+        \cf6 //Dammi la lista di giocatori\cf2\par
+        \cf1 private\cf2  \cf1 static\cf2  \cf1 string\cf2  LISTA_GIOCATORI = \cf7 @"\par
+            SELECT * FROM dbo.Giocatori ORDER BY Livello desc\par
+         "\cf2 ;\par
+\par
+        \cf6 //Dammi la lista delle partite in programma\cf2\par
+        \cf1 private\cf2  \cf1 static\cf2  \cf1 string\cf2  LISTA_PARTITE = \cf7 @"\par
+            SELECT * \par
+            FROM dbo.Partite \par
+            WHERE OraInizio > GETDATE()\par
+         "\cf2 ;\par
+\par
+\cf6 //  M E T O D I //\cf2\par
+        \cf6 // 1 //\cf2\par
+        \cf1 public\cf2  \cf1 void\cf2  PartiteInData()\par
+        \{\par
+            Console.WriteLine(\cf4 "Inserisci la data della partita:"\cf2 ); \cf6\par
+\cf2             DateTime data;           \par
+\lang1040\f2\tab      \lang16\f1 data = DateTime.Parse(Console.ReadLine());                       \par
+\lang1040\f2\tab      \cf1\lang16\f1 using\cf2  (SqlConnection conn = \cf1 new\cf2  SqlConnection(Stringa.CONN_STRING))\par
+            \{\par
+                conn.Open(); \cf6\par
+\cf2                 \cf1 using\cf2  (SqlCommand cmd = \cf1 new\cf2  SqlCommand(STAMPA_PARTITE_IN_DATA, conn))\par
+                \{\par
+                    cmd.Parameters.AddWithValue(\cf4 "@Data"\cf2 , data);\par
+                    \cf1 using\cf2  (SqlDataReader reader = cmd.ExecuteReader())\par
+                    \{\par
+                        \cf1 while\cf2  (reader.Read())\par
+                        \{\par
+                            Console.WriteLine(\cf4 "\\nID: "\cf2  + reader[\cf4 "IdPartita"\cf2 ]);\par
+                            Console.WriteLine(\cf4 "\\nTipo: "\cf2  + reader[\cf4 "Tipo"\cf2 ]);\par
+                            Console.WriteLine(\cf4 "\\nNumero Campo: "\cf2  + reader[\cf4 "Campo"\cf2 ]);\par
+                            Console.WriteLine(\cf4 "\\nOra Inizio: "\cf2  + reader[\cf4 "OraInizio"\cf2 ]);\par
+                            Console.WriteLine(\cf4 "\\nOra Fine: "\cf2  + reader[\cf4 "OraFine"\cf2 ]);\par
+                            Console.WriteLine(\cf4 "\\nRisultato partita: "\cf2  + reader[\cf4 "Risultato"\cf2 ]);\par
+                        \}\par
+                    \}\par
+                \}\par
+            \}\par
+        \}\par
+\par
+\cf6 // 2 // non ritorno un oggetto partita(della classe) ma infilo i dati direttamente nel database\cf2\par
+        \cf1 public\cf2  \cf1 void\cf2  IscrizionePartita()\par
+        \{\par
+            \cf1 try\cf2  \cf6 // ECCO COME PIAZZARE UNA ECCEZIONE\cf2\par
+            \{\par
+                \cf1 string\cf2  tipo, oraInizio, oraFine, dataInizio, dataFine;\par
+                \cf1 int\cf2  campo;\par
+                \cf1 int\cf2  cont = 4;\par
+                \cf1 int\cf2 [] giocatori = \cf1 new\cf2  \cf1 int\cf2 [4];\par
+                Console.WriteLine(\cf4 "Tipo di partita: 1vs1/2vs2"\cf2 );\par
+                tipo = Console.ReadLine();\par
+                Console.WriteLine(\cf4 "\\nChe campo Desiderate? (1-2-3-4)"\cf2 );\par
+                campo = \cf1 int\cf2 .Parse(Console.ReadLine()); \cf6 //Convert.ToInt32(Console.ReadLine());\cf2\par
+                Console.WriteLine(\cf4 "\\n che giorno?"\cf2 );\par
+                dataInizio = Console.ReadLine();\par
+                Console.WriteLine(\cf4 "\\nA che ora volete iniziare?"\cf2 );\par
+                oraInizio = Console.ReadLine();\par
+                Console.WriteLine(\cf4 "\\nA che ora volete finire?"\cf2 );\par
+                oraFine = Console.ReadLine();\par
+                Console.WriteLine(\cf4 "Inserisci il risultato:"\cf2 );\par
+                String risultato = Console.ReadLine();\par
+                dataFine = dataInizio + \cf4 " "\cf2  + oraFine;\par
+                dataInizio = dataInizio + \cf4 " "\cf2  + oraInizio;\par
+                DateTime data1 = DateTime.Parse(dataInizio);\par
+                DateTime data2 = DateTime.Parse(dataFine);\par
+                \cf1 if\cf2  (tipo == \cf4 "1vs1"\cf2 )\par
+                \{\par
+                    cont = 2;\par
+                    \cf1 for\cf2  (\cf1 int\cf2  i = 0; i < cont; i++)\par
+                    \{\par
+                        Console.WriteLine(\cf4 "\\nID giocatore"\cf2  + i);\par
+                        giocatori[i] = \cf1 int\cf2 .Parse(Console.ReadLine());\par
+                        \cf6 //int player = giocatori[i];\cf2\par
+                    \}\par
+                \}\par
+                \cf1 else\cf2\par
+                \{\par
+                    \cf1 for\cf2  (\cf1 int\cf2  i = 0; i < cont; i++)\par
+                    \{\par
+                        Console.WriteLine(\cf4 "\\nID giocatore"\cf2  + (i + 1));\par
+                        giocatori[i] = \cf1 int\cf2 .Parse(Console.ReadLine());\par
+                    \}\par
+                \}\par
+                \cf1 int\cf2  id = AddPartita(tipo, campo, data1, data2, risultato); \cf6 // gli passi i parametri di sopra\cf2\par
+                \cf6 //string agg = aggiungi();\cf2\par
+                Console.WriteLine(\cf4 "partita inserita con id:"\cf2  + id);\par
+                Iscrizione(id, giocatori, cont);\par
+            \}\par
+            \cf1 catch\cf2 (FormatException ex)\par
+            \{\par
+                Console.WriteLine(\cf4 "ECCEZIONE RILEVATA: "\cf2  + ex);\par
+                Console.WriteLine(\cf4 "\\nINSERISCI LA DATA IN FORMATO GG-MM-AA E L'ORA IN FORMATO HH:MM\\n"\cf2 );\par
+                IscrizionePartita();\par
+            \}\par
+\par
+        \}\par
+        \cf6 // 3 //\cf2\par
+        \cf1 public\cf2  \cf1 int\cf2  AddPartita(\cf1 string\cf2  tipo, \cf1 int\cf2  campo, DateTime dataInizio, DateTime dataFine, \cf1 string\cf2  risultato)\par
+        \{\par
+            \cf1 using\cf2  (SqlConnection conn = \cf1 new\cf2  SqlConnection(Stringa.CONN_STRING))\par
+            \{\par
+                conn.Open();\par
+                \par
+                \cf1 using\cf2  (SqlCommand cmd = \cf1 new\cf2  SqlCommand(AGGIUNGI_PARTITA, conn))\par
+                \{\par
+                    \par
+                    cmd.Parameters.AddWithValue(\cf4 "@Tipo"\cf2 , tipo);\par
+                    cmd.Parameters.AddWithValue(\cf4 "@Campo"\cf2 , campo);\par
+                    cmd.Parameters.AddWithValue(\cf4 "@DataIn"\cf2 , dataInizio);\par
+                    cmd.Parameters.AddWithValue(\cf4 "@DataF"\cf2 , dataFine);\par
+                    cmd.Parameters.AddWithValue(\cf4 "@Ris"\cf2 , risultato);\par
+                    \cf1 decimal\cf2  result = \cf6 /*(decimal)*/\cf2 Convert.ToDecimal(cmd.ExecuteScalar()); \cf6 // puoi fare sia il cast che usare il Covert.ToDecimal\cf2\par
+                    \cf1 return\cf2  (\cf1 int\cf2 )result;\par
+                \}\par
+            \}\par
+        \}\par
+\par
+        \cf6 // 3 plus //\cf2\par
+        \cf1 public\cf2  \cf1 void\cf2  Iscrizione(\cf1 int\cf2  id, \cf1 int\cf2 [] idGiocatore, \cf1 int\cf2  cont)\par
+        \{\par
+            \cf1 using\cf2  (SqlConnection conn = \cf1 new\cf2  SqlConnection(Stringa.CONN_STRING))\par
+            \{\par
+                conn.Open();\par
+                \cf1 for\cf2  (\cf1 int\cf2  i = 0; i < cont; i++)\par
+                \{\par
+                    \cf1 using\cf2  (SqlCommand cmd = \cf1 new\cf2  SqlCommand(RIEMPI_TABELLA_UNIONE, conn))\par
+                    \{\par
+                        cmd.Parameters.AddWithValue(\cf4 "@idPartita"\cf2 , id);\par
+                        cmd.Parameters.AddWithValue(\cf4 "@idGiocatore"\cf2 , idGiocatore[i]);\par
+                        Console.WriteLine(\cf4 "Numero righe inserite: "\cf2  + cmd.ExecuteNonQuery());\par
+                    \}\par
+                \}\par
+            \}\par
+        \}\par
+\cf6 // 5 //\cf2\par
+        \cf1 public\cf2  \cf1 decimal\cf2  ValoreMedG()\par
+        \{\par
+            Console.WriteLine(\cf4 "Inserisci l'et\f2\'e0\f1  massima"\cf2 );\par
+            \cf1 int\cf2  eta;\par
+            eta = Convert.ToInt32(Console.ReadLine());\par
+            \cf1 decimal\cf2  media = 0;\par
+            \cf1 using\cf2  (SqlConnection conn = \cf1 new\cf2  SqlConnection(Stringa.CONN_STRING))\par
+            \{\par
+                conn.Open();\par
+                \cf1 using\cf2  (SqlCommand cmd = \cf1 new\cf2  SqlCommand(TROVA_LIVELLO_MEDIO, conn))\par
+                \{\par
+                    cmd.Parameters.AddWithValue(\cf4 "@Anni"\cf2 , eta);\par
+                    \cf1 using\cf2  (SqlDataReader reader = cmd.ExecuteReader())\par
+                    \{\par
+                        \cf1 while\cf2  (reader.Read())\par
+                        \{\par
+                            media = Convert.ToDecimal( reader[\cf4 "media"\cf2 ]); \cf6 // Convert.ToInt32\cf2\par
+                        \}\par
+                    \}\par
+                \}\par
+            \}\par
+            Console.WriteLine(\cf4 "\\nLa media dei giocatori sotto i "\cf2  + eta + \cf4 " \f2\'e8\f1 : "\cf2  + media);\par
+            \cf1 return\cf2  media;\par
+        \}\par
+        \cf6 // 6 //\cf2\par
+        \cf1 public\cf2  \cf1 void\cf2  ListaGiocatori()\par
+        \{\par
+            \cf1 using\cf2  (SqlConnection conn = \cf1 new\cf2  SqlConnection(Stringa.CONN_STRING)) \cf6 //ti connetti al database\cf2\par
+            \{\par
+                conn.Open(); \cf6 //apri la connessione\cf2\par
+                \cf1 using\cf2  (SqlCommand cmd = \cf1 new\cf2  SqlCommand(LISTA_GIOCATORI, conn)) \cf6 //attivi la query\cf2\par
+                \{\par
+                    \cf6 //cmd.Parameters.AddWithValue("@Data", data);\cf2\par
+                    \cf1 using\cf2  (SqlDataReader reader = cmd.ExecuteReader())\par
+                    \{\par
+                        \cf1 while\cf2  (reader.Read())\par
+                        \{\par
+                            Console.WriteLine(reader[\cf4 "Nome"\cf2 ].ToString()\par
+                            + \cf4 " "\cf2  +\par
+                            reader[\cf4 "Cognome"\cf2 ].ToString()\par
+                            + \cf4 " "\cf2  + \cf4 " ha attualmente un livello pari a "\cf2  +\par
+                            reader[\cf4 "Livello"\cf2 ].ToString());\par
+                        \}\par
+                    \}\par
+\par
+                \}\par
+\par
+            \}\par
+        \}\par
+        \cf6 // 7 //\cf2\par
+        \cf1 public\cf2  \cf1 void\cf2  PartiteInProgramma()\par
+        \{\par
+            \cf1 using\cf2  (SqlConnection conn = \cf1 new\cf2  SqlConnection(Stringa.CONN_STRING)) \cf6 //ti connetti al database\cf2\par
+            \{\par
+                conn.Open(); \cf6 //apri la connessione\cf2\par
+                \cf1 using\cf2  (SqlCommand cmd = \cf1 new\cf2  SqlCommand(LISTA_PARTITE, conn)) \cf6 //attivi la query\cf2\par
+                \{\par
+                    \cf6 //cmd.Parameters.AddWithValue("@Data", data);\cf2\par
+                    \cf1 using\cf2  (SqlDataReader reader = cmd.ExecuteReader())\par
+                    \{\par
+                        Console.WriteLine(\cf4 "\\nPartite in programma:\\n"\cf2 );\par
+                        \cf1 while\cf2  (reader.Read())\par
+                        \{\par
+                            Console.WriteLine(reader[\cf4 "IdPartita"\cf2 ].ToString()\par
+                            + \cf4 " "\cf2  +\par
+                            reader[\cf4 "Tipo"\cf2 ].ToString()\par
+                            + \cf4 " "\cf2  +\par
+                            reader[\cf4 "Campo"\cf2 ].ToString()\par
+                            + \cf4 " "\cf2  +\par
+                            reader[\cf4 "OraInizio"\cf2 ].ToString());\par
+                            \cf6 //+ " " +\cf2\par
+                            \cf6 //reader["OraFine\\n"].ToString());\cf2\par
+                        \}\par
+                        Console.WriteLine(\cf4 "\\nPress any key to continue"\cf2 );\par
+                        Console.ReadLine();\par
+                    \}\par
+                \}\par
+            \}\par
+        \}\par
+\par
+\lang1040\ul\f2 DELETE QUERY \ulnone : \cf1\f1 DELETE\cf2  \cf1 FROM\cf2  dbo\cf3 .\cf2 Giocatori \cf1 WHERE\cf2  IdGiocatore \cf3 =\cf2  4004\par
+\par
+\cf0\lang16\ul\f0\par
+\pard\sa200\sl276\slmult1 MVC\ulnone\par
+\pard\sl240\slmult1 NuGet:         Microsoft.VisualStudio.Web.CodeGeneration.Design v2.1.1   \line\tab         Microsoft.EntityFrameworkCore.Tools v2.1.4\line\cf1\f1 using\cf2  Microsoft.EntityFrameworkCore;\line\cf1 using\cf2  System.Collections.Generic;\line\cf1 using\cf2  System.Linq;\par
+\cf1 using\cf2  System.Threading.Tasks;\par
+\cf1 using\cf2  Microsoft.AspNetCore.Mvc;\par
+\cf1 using\cf2  Microsoft.AspNetCore.Mvc.Rendering;\par
+\cf1 using\cf2  Microsoft.EntityFrameworkCore;\par
+\cf1 using\cf2  MvcProvaesame.Model;\par
+\cf1 using\cf2  MvcProvaesame.Model.ViewModel;\cf0\f0\line\par
+\pard\sa200\sl276\slmult1 *********************************CODICE TABELE********************************\par
+\pard\sl240\slmult1\cf1\f1 CREATE\cf2  \cf1 TABLE\cf2  [dbo]\cf3 .\cf2 [Autori]\cf1  \cf3 (\cf2\par
+    [Id]       \cf1 INT\cf2             \cf1 IDENTITY \cf3 (\cf2 1\cf3 ,\cf2  1\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Email]    \cf1 NVARCHAR \cf3 (\cf8 MAX\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Nome]     \cf1 NVARCHAR \cf3 (\cf8 MAX\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Skill]    \cf1 NVARCHAR \cf3 (\cf8 MAX\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Telefono] \cf1 NVARCHAR \cf3 (\cf8 MAX\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    \cf1 CONSTRAINT\cf2  [PK_Autori] \cf1 PRIMARY\cf2  \cf1 KEY\cf2  \cf1 CLUSTERED \cf3 (\cf2 [Id] \cf1 ASC\cf3 )\cf2\par
+\cf3 );\par
+\par
+\cf1 CREATE\cf2  \cf1 TABLE\cf2  [dbo]\cf3 .\cf2 [Presentazioni]\cf1  \cf3 (\cf2\par
+    [Id]      \cf1 INT\cf2             \cf1 IDENTITY \cf3 (\cf2 1\cf3 ,\cf2  1\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Fine]    \cf1 DATETIME2 \cf3 (\cf2 7\cf3 )\cf2   \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Inizio]  \cf1 DATETIME2 \cf3 (\cf2 7\cf3 )\cf2   \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Livello] \cf1 NVARCHAR \cf3 (\cf8 MAX\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Titolo]  \cf1 NVARCHAR \cf3 (\cf8 MAX\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    \cf1 CONSTRAINT\cf2  [PK_Presentazioni] \cf1 PRIMARY\cf2  \cf1 KEY\cf2  \cf1 CLUSTERED \cf3 (\cf2 [Id] \cf1 ASC\cf3 )\cf2\par
+\cf3 );\par
+\par
+\cf1 CREATE\cf2  \cf1 TABLE\cf2  [dbo]\cf3 .\cf2 [Registrazioni]\cf1  \cf3 (\cf2\par
+    [Autore]        \cf1 INT\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Presentazione] \cf1 INT\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    \cf1 CONSTRAINT\cf2  [PK_Registrazioni] \cf1 PRIMARY\cf2  \cf1 KEY\cf2  \cf1 CLUSTERED \cf3 (\cf2 [Autore] \cf1 ASC\cf3 ,\cf2  [Presentazione] \cf1 ASC\cf3 ),\cf2\par
+    \cf1 CONSTRAINT\cf2  [FK_Registrazioni_Autori_Autore] \cf1 FOREIGN\cf2  \cf1 KEY \cf3 (\cf2 [Autore]\cf3 )\cf2  \cf1 REFERENCES\cf2  [dbo]\cf3 .\cf2 [Autori]\cf1  \cf3 (\cf2 [Id]\cf3 )\cf2  \cf1 ON\cf2  \cf1 DELETE\cf2  \cf1 CASCADE\cf3 ,\cf2\par
+    \cf1 CONSTRAINT\cf2  [FK_Registrazioni_Presentazioni_Presentazione] \cf1 FOREIGN\cf2  \cf1 KEY \cf3 (\cf2 [Presentazione]\cf3 )\cf2  \cf1 REFERENCES\cf2  [dbo]\cf3 .\cf2 [Presentazioni]\cf1  \cf3 (\cf2 [Id]\cf3 )\cf2  \cf1 ON\cf2  \cf1 DELETE\cf2  \cf1 CASCADE\cf2\par
+\cf3 );\cf2\par
+\par
+\par
+\cf1 GO\cf2\par
+\cf1 CREATE\cf2  \cf1 NONCLUSTERED\cf2  \cf1 INDEX\cf2  [IX_Registrazioni_Presentazione]\par
+    \cf1 ON\cf2  [dbo]\cf3 .\cf2 [Registrazioni]\cf3 (\cf2 [Presentazione] \cf1 ASC\cf3 );\cf0\f0\par
+\pard\sa200\sl276\slmult1\par
+*********************************SVOLGIMENTO********************************\par
+- ApplicazioneWeb ASP.NET Core ---> asp.net core 2.1     VUOTO\ul\line\line\ulnone - Tasto dx sul progetto, Apri in esplora risorse , tasto dx + SHIFT, Apri finestra di comando qui, incolli il codice qui sotto:\par
+dotnet ef dbcontext scaffold "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Presentazioni;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;" Microsoft.EntityFrameworkCore.SqlServer -d -o Model -c MvcContext --force\par
+- Se ti crea la cartella bene, se non te la crea installare il nuget EFTools.\line\line - Program.cs da non toccare, Startup da configurare con il seguente codice:\line\line\pard\sl240\slmult1\cf2\f1  \cf1 public\cf2  \cf1 class\cf2  \cf5 Startup\cf2\par
+    \{\par
+        \cf6 // This method gets called by the runtime. Use this method to add services to the container.\cf2\par
+        \cf6 // For more information on how to configure your application, visit \cf0{\field{\*\fldinst{HYPERLINK "https://go.microsoft.com/fwlink/?LinkID=398940"}}{\fldrslt{\ul\cf1 https://go.microsoft.com/fwlink/?LinkID=398940}}}\cf2\f1\fs18\par
+        \cf1 public\cf2  IConfiguration Configuration \{ \cf1 get\cf2 ; \}\par
+\par
+        \cf1 public\cf2  Startup(IConfiguration configuration)\par
+        \{\par
+            Configuration = configuration;\par
+        \}\par
+\par
+        \cf1 public\cf2  \cf1 void\cf2  ConfigureServices(IServiceCollection services)\par
+        \{\par
+            services.AddDbContext<\ul AutoriContext\ulnone >(opts => opts.UseSqlServer(\par
+            Configuration.GetConnectionString(\cf4 "DefaultConnection"\cf2 )));\par
+            services.AddMvc();\par
+        \}\par
+\par
+        \cf6 // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.\cf2\par
+        \cf1 public\cf2  \cf1 void\cf2  Configure(IApplicationBuilder app, IHostingEnvironment env)\par
+        \{\par
+            \cf1 if\cf2  (env.IsDevelopment())\par
+            \{\par
+                app.UseDeveloperExceptionPage();\par
+            \}\par
+\par
+            app.UseStatusCodePages();\par
+            app.UseStaticFiles();\par
+\par
+            app.UseMvc(routes =>\par
+            \{\par
+                routes.MapRoute(\par
+                    name: \cf4 "default"\cf2 ,\par
+                    template: \cf4 "\{controller=Home\}/\{action=Index\}/\{id?\}"\cf2 );\par
+            \});\par
+        \}\par
+    \}\cf0\f0\par
+\pard\sa200\sl276\slmult1\par
+- Creare la cartella "Controllers" e aggiungere un nuovo controller vuoto chiamato "Home". Aprirlo, tasto destro sul metodo Index e "crea visualizazione", il nome delle view sempre Index e crei. Verr\'e0 generata una cartella che da adesso conterr\'e0 le tue view.\par
+- dopo aver fatto questo creare il file appsettings.json in cui sar\'e0 contenuta la stringa di connessione del progetto, togli tutto quello che c'\'e8 dentro e inserisci il seguente codice:\line\line\pard\sl240\slmult1\cf2\f1\{\par
+  \cf9 "ConnectionStrings"\cf2 : \{\par
+    \cf9 "DefaultConnection"\cf2 : \cf4 "Data Source=(localdb)\\\\MSSQLLocalDB;Initial Catalog=Presentazioni;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"\cf2\par
+  \}\par
+\}\cf0\f0\par
+\pard\sa200\sl276\slmult1\par
+- Tasto dx sulla cartella View --> aggiungi nuovo elemento --> pagina razor che chiaerai _ViewImports\line\line\pard\sl276\slmult1\cf2\highlight10\f1 @\cf1\highlight0 using\cf2  MvcPersonello.Controllers;\par
+\highlight10 @\cf1\highlight0 using\cf2  MvcPersonello.Model;\par
+\highlight10 @addTagHelper\highlight0  \cf4 *, Microsoft.AspNetCore.Mvc.TagHelpers\par
+\par
+\pard\sa200\sl276\slmult1\cf0\f0 - Tasto dx sulla cartella View --> aggiungi nuovo elemento --> pagina razor che chiamerai _Layout\line Nota bene che deve essere inserito in una cartella dentro le view che si chiama Shared.\line Copiare ed incollare il codice che trovi al suo interno da un altro progetto mvc\par
+Eliminare il seguente codice all'interno del file copiato\line\cf2\f1   \cf1 <\cf11\b partial\cf2\b0  \cf11\b name\cf1\b0 ="_CookieConsentPartial"\cf2  \cf1 />\line\cf0\f0\par
+INCOLLARE IL SEGUENTE CODICE PER INSTALLARE BOOTSTRAP NEL PROGETTO\par
+\pard\sl240\slmult1 <!-- Latest compiled and minified CSS -->\par
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">\par
+\par
+<!-- Optional theme -->\par
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">\par
+\par
+<!-- Latest compiled and minified JavaScript -->\par
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>\par
+\pard\sa200\sl276\slmult1\par
+INCOLLARE IL SEGUENTE CODICE PER INSTALLARE JQUERY NEL PROGETTO\par
+Sito jquery --> download -->il primo, versione 3.1.1 --> copi tutto e lo incolli in un file txt --> cambi l'estensione del file appena creato in .js --> incolli questo file in wwwroot in esplora soluzioni e lo trascini nell'head del _Layout.\line\line - Ora creiamo il _ViewStart, che anch'essa sar\'e0 una pagina razor. \par
+\pard\sl240\slmult1\cf2\highlight10\f1 @\{\highlight0\par
+    Layout = \cf4 "_Layout"\cf2 ;\par
+\highlight10\}\cf0\highlight0\f0\par
+\pard\sa200\sl276\slmult1\par
+- Creiamo i controller autogenerati, se fallisce l'autogenerazione installare il nuget codegeneration.\line Tasto dx sulla cartella controllers, aggiungi, controller, mvc con ef, selezioni modello e contesto e via. Ti crea automaticamente anche le CRUD view.\line\line - completare l'home page inserendo:\par
+\cf7\f1 link\cf2  \cf12 rel\cf1 ="stylesheet"\cf2  \cf12 href\cf1 ="~/Style.css"\cf2  \cf1 />\lang1040\f2  nell'head\line\line\cf0\lang16\f0 Poi nell'index dell'homecontroller posizionare un'immagine di benvenuto:\cf2\f1\par
+\pard\sl240\slmult1\highlight10 @\{\highlight0\par
+    ViewData[\cf4 "Title"\cf2 ] = \cf4 "Home Page"\cf2 ;\par
+\highlight10\}\highlight0\par
+\par
+\cf1 <\cf7 div\cf2  \cf12 style\cf1 ="\cf12 text-align\cf2 :\cf1 center\cf2 ; \cf12 padding\cf2 :\cf1 30px">\cf2\par
+    \cf1 <\cf7 img\cf2  \cf12 src\cf1 ="~/HomePage.png"\cf2  \cf12 style\cf1 ="\cf12 margin-top\cf2 :\cf1 30px"/>\cf2\par
+\cf1 </\cf7 div\cf1 >\cf0\f0\line\pard\sa200\sl276\slmult1\par
+- Aggiungere il PresentazioniViewModel \line\pard\sl240\slmult1\cf2\f1     \cf1 public\cf2  \cf1 class\cf2  \cf5 PresentazioneViewModel\cf2\par
+    \{\par
+        \cf1 public\cf2  \cf1 int\cf2  Id \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  DateTime Fine \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  DateTime Inizio \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  \cf1 string\cf2  Livello \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  \cf1 string\cf2  Titolo \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  \cf1 int\cf2  IdAutore \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+\par
+        \cf1 public\cf2  List<Autori> autori = \cf1 new\cf2  List<Autori>();\par
+    \}\cf0\f0\par
+\pard\sa200\sl276\slmult1\line - Implementiamo il codice nel PresentazionisController:\line\line\pard\sl240\slmult1\cf2\f1         \cf6 // GET: Presentazionis/Create\cf2\par
+        \cf1 public\cf2  IActionResult Create()\par
+        \{\par
+            PresentazioniViewModel pres = \cf1 new\cf2  PresentazioniViewModel();\par
+            \cf1 var\cf2  auto = _context.Autori.ToList();\par
+            \cf1 foreach\cf2 (var i \cf1 in\cf2  auto)\par
+            \{\par
+                pres.autori.Add(i);\par
+            \}\par
+            \cf1 return\cf2  View(pres);\par
+        \}\par
+\par
+        \cf6 // POST: Presentazionis/Create\cf2\par
+        \cf6 // To protect from overposting attacks, please enable the specific properties you want to bind to, for \cf2\par
+        \cf6 // more details see \cf0{\field{\*\fldinst{HYPERLINK "http://go.microsoft.com/fwlink/?LinkId=317598"}}{\fldrslt{\ul\cf1 http://go.microsoft.com/fwlink/?LinkId=317598}}}\cf6\f1\fs18 .\cf2\par
+        [HttpPost]\par
+        [ValidateAntiForgeryToken]\par
+        \cf1 public\cf2  \cf1 async\cf2  Task<IActionResult> Create(PresentazioniViewModel presentazioni)\par
+        \{\par
+            \cf1 if\cf2  (ModelState.IsValid)\par
+            \{\par
+                Presentazioni presentazione = \cf1 new\cf2  Presentazioni()\par
+                \{\par
+                    Inizio = presentazioni.Inizio,\par
+                    Fine = presentazioni.Fine,\par
+                    Livello = presentazioni.Livello,\par
+                    Titolo = presentazioni.Titolo\par
+                \};\par
+                _context.Add(presentazione);\par
+                \cf1 await\cf2  _context.SaveChangesAsync();\par
+                \cf1 int\cf2  idPresentazione = presentazione.Id;\par
+                Registrazioni registra = \cf1 new\cf2  Registrazioni()\par
+                \{\par
+                    Autore = presentazioni.IdAutore, \cf6 // recuperato dalla drop down list\cf2\par
+                    Presentazione = idPresentazione\par
+                \};\par
+                _context.Registrazioni.Add(registra);\par
+                \cf1 await\cf2  _context.SaveChangesAsync();\par
+                \cf1 return\cf2  RedirectToAction(nameof(Index));\par
+            \}\par
+            \cf1 return\cf2  View(presentazioni);\par
+        \}\cf0\f0\line\pard\sa200\sl276\slmult1\line - Adesso andiamo nella view Create di Presentazionis, cambiare il modello in cima alla pagina mettendo \line\cf2\highlight10\f1 @model\highlight0  MvcProvaesame.Model.ViewModel.PresentazioniViewModel\line\line\lang1040\f2 e modificando il codice successivo con:\line\pard\sl240\slmult1\cf1\f1 <\cf7 div\cf2  \cf12 class\cf1 ="row">\cf2\par
+    \cf1 <\cf7 div\cf2  \cf12 class\cf1 ="col-md-4">\cf2\par
+       \ul  \cf1 <\cf11\b form\cf2\b0  \cf11\b asp-action\cf1\b0 ="Create"\cf2  \cf12 method\cf1 ="post">\cf2\par
+\ulnone             \cf1 <\cf11\b div\cf2\b0  \cf11\b asp-validation-summary\cf1\b0 ="\cf2 ModelOnly\cf1 "\cf2  \cf12 class\cf1 ="text-danger"></\cf11\b div\cf1\b0 >\cf2\par
+            \cf1 <\cf7 div\cf2  \cf12 class\cf1 ="form-group">\cf2\par
+                \cf1 <\cf11\b label\cf2\b0  \cf11\b asp-for\cf1\b0 ="\cf2 Fine\cf1 "\cf2  \cf12 class\cf1 ="control-label"></\cf11\b label\cf1\b0 >\cf2\par
+                \cf1 <\cf11\b input\cf2\b0  \cf11\b asp-for\cf1\b0 ="\cf2 Fine\cf1 "\cf2  \cf12 class\cf1 ="form-control"\cf2  \cf1 />\cf2\par
+                \cf1 <\cf11\b span\cf2\b0  \cf11\b asp-validation-for\cf1\b0 ="\cf2 Fine\cf1 "\cf2  \cf12 class\cf1 ="text-danger"></\cf11\b span\cf1\b0 >\cf2\par
+            \cf1 </\cf7 div\cf1 >\cf2\par
+            \cf1 <\cf7 div\cf2  \cf12 class\cf1 ="form-group">\cf2\par
+                \cf1 <\cf11\b label\cf2\b0  \cf11\b asp-for\cf1\b0 ="\cf2 Inizio\cf1 "\cf2  \cf12 class\cf1 ="control-label"></\cf11\b label\cf1\b0 >\cf2\par
+                \cf1 <\cf11\b input\cf2\b0  \cf11\b asp-for\cf1\b0 ="\cf2 Inizio\cf1 "\cf2  \cf12 class\cf1 ="form-control"\cf2  \cf1 />\cf2\par
+                \cf1 <\cf11\b span\cf2\b0  \cf11\b asp-validation-for\cf1\b0 ="\cf2 Inizio\cf1 "\cf2  \cf12 class\cf1 ="text-danger"></\cf11\b span\cf1\b0 >\cf2\par
+            \cf1 </\cf7 div\cf1 >\cf2\par
+            \cf1 <\cf7 div\cf2  \cf12 class\cf1 ="form-group">\cf2\par
+                \cf1 <\cf11\b label\cf2\b0  \cf11\b asp-for\cf1\b0 ="\cf2 Livello\cf1 "\cf2  \cf12 class\cf1 ="control-label"></\cf11\b label\cf1\b0 >\cf2\par
+                \cf1 <\cf11\b input\cf2\b0  \cf11\b asp-for\cf1\b0 ="\cf2 Livello\cf1 "\cf2  \cf12 class\cf1 ="form-control"\cf2  \cf1 />\cf2\par
+                \cf1 <\cf11\b span\cf2\b0  \cf11\b asp-validation-for\cf1\b0 ="\cf2 Livello\cf1 "\cf2  \cf12 class\cf1 ="text-danger"></\cf11\b span\cf1\b0 >\cf2\par
+            \cf1 </\cf7 div\cf1 >\cf2\par
+            \cf1 <\cf7 div\cf2  \cf12 class\cf1 ="form-group">\cf2\par
+                \cf1 <\cf11\b label\cf2\b0  \cf11\b asp-for\cf1\b0 ="\cf2 Titolo\cf1 "\cf2  \cf12 class\cf1 ="control-label"></\cf11\b label\cf1\b0 >\cf2\par
+                \cf1 <\cf11\b input\cf2\b0  \cf11\b asp-for\cf1\b0 ="\cf2 Titolo\cf1 "\cf2  \cf12 class\cf1 ="form-control"\cf2  \cf1 />\cf2\par
+                \cf1 <\cf11\b span\cf2\b0  \cf11\b asp-validation-for\cf1\b0 ="\cf2 Titolo\cf1 "\cf2  \cf12 class\cf1 ="text-danger"></\cf11\b span\cf1\b0 >\cf2\par
+            \cf1 </\cf7 div\cf1 >\cf2\par
+            \cf1 <\cf7 div\cf2  \cf12 class\cf1 ="form-group">\cf2\par
+                \cf1 <\cf7 input\cf2  \cf12 type\cf1 ="submit"\cf2  \cf12 value\cf1 ="Create"\cf2  \cf12 class\cf1 ="btn btn-default"\cf2  \cf1 />\cf2\par
+            \cf1 </\cf7 div\cf1 >\cf2\par
+            \cf1 <\cf7 div\cf1 >\cf2\par
+                \cf1 <\cf11\b label\cf2\b0  \cf11\b asp-for\cf1\b0 ="\cf2 autori\cf1 "\cf2  \cf12 class\cf1 ="control-label"></\cf11\b label\cf1\b0 >\cf2\par
+                \cf1\ul <\cf11\b select\cf2\b0  \cf11\b asp-for\cf1\b0 ="\cf2 IdAutore\cf1 "\cf2  \cf11\b asp-items\cf1\b0 ="\cf2\highlight10 @\highlight0 (\cf1 new\cf2  SelectList\f2\tab\tab\tab\tab\tab\tab\tab\tab\tab\tab\tab\tab\tab\f1 (Model.autori,\cf4 "Id"\cf2 ,\cf4 "Nome"\cf2 ))\cf1 ">\cf2\par
+\ulnone                     \cf1 <\cf11\b option\cf1\b0 >\cf2 Please select one\cf1 </\cf11\b option\cf1\b0 >\cf2\par
+                \cf1 </\cf11\b select\cf1\b0 >\cf2\par
+                \cf1 <\cf7 input\cf2  \cf12 type\cf1 ="submit"\cf2  \cf1 />\cf2\par
+            \cf1 </\cf7 div\cf1 >\cf2\par
+        \cf1 </\cf11\b form\cf1\b0 >\cf2\par
+    \cf1 </\cf7 div\cf1 >\cf2\par
+\cf1 </\cf7 div\cf1 >\cf0\lang16\f0\par
+\pard\sa200\sl276\slmult1 PARTE MOLTO IMPORTANTE E FONDAMENTALE UNIRE LE VIEW APPENA CREATO CON L'HOME CONTROLLER GRAZIE AI TAG HELPERS.\par
+- Validazione email e telefono:\line\line\pard\sl240\slmult1\cf2\f1 [EmailAddress(ErrorMessage = \cf4 "Invalid Email Address"\cf2 )]\par
+\cf1 public\cf2  \cf1 string\cf2  EmailAddress \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\line [RegularExpression(\cf7 @"^([0]|\\+91[\\-\\s]?)?[789]\\d\{9\}$"\cf2 , ErrorMessage = \cf4 "Invalid "\cf2 )]\line\cf1 public\cf2  \cf1 string\cf2  PhoneNumber \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\cf0\f0\line\line\par
+\pard\sa200\sl276\slmult1\ul API+ANGULAR\par
+\pard\sl240\slmult1\ulnone NuGet:         Microsoft.VisualStudio.Web.CodeGeneration.Design v2.1.1   \line\cf1\f1 using\cf2  System;\par
+\cf1 using\cf2  System.Collections.Generic;\par
+\cf1 using\cf2  System.Linq;\par
+\cf1 using\cf2  System.Threading.Tasks;\par
+\cf1 using\cf2  Microsoft.AspNetCore.Http;\par
+\cf1 using\cf2  Microsoft.AspNetCore.Mvc;\par
+\cf1 using\cf2  Microsoft.EntityFrameworkCore;\par
+\cf1 using\cf2  ApiOspedale.Model;\par
+\cf1 using\cf2  Microsoft.AspNetCore.Cors;\line\cf0\f0\par
+\pard\sa200\sl276\slmult1 *********************************CODICE TABELE********************************\ul\par
+\pard\sl240\slmult1\cf1\ulnone\f1 CREATE\cf2  \cf1 TABLE\cf2  [dbo]\cf3 .\cf2 [Medici]\cf1  \cf3 (\cf2\par
+    [IdMedico]       \cf1 INT\cf2            \cf1 IDENTITY \cf3 (\cf2 1\cf3 ,\cf2  1\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Nome]           \cf1 NVARCHAR \cf3 (\cf2 50\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Cognome]        \cf1 NVARCHAR \cf3 (\cf2 50\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [DataNascita]    \cf1 DATE\cf2           \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [DataAssunzione] \cf1 DATE\cf2           \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [DeptId]         \cf1 INT\cf2            \cf3 NULL,\cf2\par
+    \cf1 PRIMARY\cf2  \cf1 KEY\cf2  \cf1 CLUSTERED \cf3 (\cf2 [IdMedico] \cf1 ASC\cf3 ),\cf2\par
+    \cf1 CONSTRAINT\cf2  [FK_Medici_Dipartimenti] \cf1 FOREIGN\cf2  \cf1 KEY \cf3 (\cf2 [DeptId]\cf3 )\cf2  \cf1 REFERENCES\cf2  [dbo]\cf3 .\cf2 [Dipartimenti]\cf1  \cf3 (\cf2 [IdDipartimento]\cf3 )\cf2\par
+\cf3 );\line\cf2\par
+\cf1 CREATE\cf2  \cf1 TABLE\cf2  [dbo]\cf3 .\cf2 [Dipartimenti]\cf1  \cf3 (\cf2\par
+    [IdDipartimento] \cf1 INT\cf2            \cf1 IDENTITY \cf3 (\cf2 1\cf3 ,\cf2  1\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Nome]           \cf1 NVARCHAR \cf3 (\cf2 50\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [Area]           \cf1 NVARCHAR \cf3 (\cf2 50\cf3 )\cf2  \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    [PrimarioId]     \cf1 INT\cf2            \cf3 NOT\cf2  \cf3 NULL,\cf2\par
+    \cf1 CONSTRAINT\cf2  [PK_Dipartimenti] \cf1 PRIMARY\cf2  \cf1 KEY\cf2  \cf1 CLUSTERED \cf3 (\cf2 [IdDipartimento] \cf1 ASC\cf3 ),\cf2\par
+    \cf1 CONSTRAINT\cf2  [FK_Dipartimenti_Medici] \cf1 FOREIGN\cf2  \cf1 KEY \cf3 (\cf2 [PrimarioId]\cf3 )\cf2  \cf1 REFERENCES\cf2  [dbo]\cf3 .\cf2 [Medici]\cf1  \cf3 (\cf2 [IdMedico]\cf3 )\cf2\par
+\cf3 );\cf0\ul\f0\par
+\pard\sa200\sl276\slmult1\par
+\ulnone *********************************SVOLGIMENTO********************************\line\ul\line\ulnone - ApplicazioneWeb ASP.NET Core ---> asp.net core 2.1     API\ul\line\line\ulnone - Tasto dx sul progetto, Apri in esplora risorse , tasto dx + SHIFT, Apri finestra di comando qui, incolli il codice qui sotto:\par
+dotnet ef dbcontext scaffold "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Presentazioni;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;" Microsoft.EntityFrameworkCore.SqlServer -d -o Model -c MvcContext --force\par
+- Se ti crea la cartella bene, se non te la crea installare il nuget EFTools.\line\line - Modificare l'appsettings.json immettendo:\line\pard\sl240\slmult1\cf2\f1\{\par
+  \cf9 "ConnectionStrings"\cf2 : \{\par
+    \cf9 "DefaultConnection"\cf2 : \cf4 "Data Source=(localdb)\\\\MSSQLLocalDB;Initial Catalog=Hospital;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"\cf2\par
+  \}\par
+\}\line\line\lang1040\f2 - Modificare la Startup inserendo il contesto, i servizi e la policy cors:\line\cf1\f1 public\cf2  \cf1 class\cf2  \cf5 Startup\cf2\par
+    \{\par
+        \cf1 public\cf2  Startup(IConfiguration configuration)\par
+        \{\par
+            Configuration = configuration;\par
+        \}\par
+\par
+        \cf1 public\cf2  IConfiguration Configuration \{ \cf1 get\cf2 ; \}\par
+\par
+        \cf6 // This method gets called by the runtime. Use this method to add services to the container.\cf2\par
+        \cf1 public\cf2  \cf1 void\cf2  ConfigureServices(IServiceCollection services)\par
+        \{\par
+            services.AddDbContext<HospitalContext>(opts => opts.UseSqlServer(\par
+            Configuration.GetConnectionString(\cf4 "DefaultConnection"\cf2 )));\par
+\par
+            services.AddTransient<Repository, Repository>();\par
+\par
+            services.AddCors(o => o.AddPolicy(\cf4 "MyPolicyCORS"\cf2 , builder =>\par
+            \{\par
+                builder.AllowAnyOrigin()\par
+                       .AllowAnyMethod()\par
+                       .AllowAnyHeader();\par
+            \}));\par
+\par
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);\par
+        \}\par
+\par
+        \cf6 // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.\cf2\par
+        \cf1 public\cf2  \cf1 void\cf2  Configure(IApplicationBuilder app, IHostingEnvironment env)\par
+        \{\par
+            \cf1 if\cf2  (env.IsDevelopment())\par
+            \{\par
+                app.UseDeveloperExceptionPage();\par
+            \}\par
+            \cf1 else\cf2\par
+            \{\par
+                app.UseHsts();\par
+            \}\par
+            app.UseCors(\cf4 "MyPolicyCORS"\cf2 );\par
+\par
+            app.UseHttpsRedirection();\par
+            app.UseMvc();\par
+        \}\par
+    \}\cf0\lang16\ul\f0\line\line\ulnone - Aggiungere il viewmodel:\ul\line\line\cf1\ulnone\f1 public\cf2  \cf1 class\cf2  \cf5 MediciVModel\cf2\par
+    \{\par
+        \cf1 public\cf2  \cf1 int\cf2  IdMedico \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  \cf1 string\cf2  Nome \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  \cf1 string\cf2  Cognome \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  DateTime DataNascita \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  DateTime DataAssunzione \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+        \cf1 public\cf2  \cf1 string\cf2  Dipartimento \{ \cf1 get\cf2 ; \cf1 set\cf2 ; \}\par
+\par
+        \cf1 public\cf2  MediciVModel()\par
+        \{\par
+\par
+        \}\par
+\par
+        \cf6 //tutta sta merda per questo, assegnare al deptid del medico il nome del dipartimento\cf2\par
+        \cf6 //cos\f2\'ec\f1  da poterlo usare per risolvere il primo punto dell'esame\cf2\par
+        \cf1 public\cf2  MediciVModel(Medici medico)\par
+        \{\par
+            IdMedico = medico.IdMedico;\par
+            Nome = medico.Nome;\par
+            Cognome = medico.Cognome;\par
+            DataNascita = medico.DataNascita;\par
+            DataAssunzione = medico.DataAssunzione;\par
+            Dipartimento = medico.Dept.Nome;\par
+        \}\par
+    \}\line\cf0\ul\f0\line\ulnone - Scrivere i metodi dentro la repository nei model:\line\cf2\f1     \cf1 public\cf2  \cf1 class\cf2  \cf5 Repository\cf2\par
+    \{\par
+        \cf1 private\cf2  HospitalContext ctx;\par
+\par
+        \cf1 public\cf2  Repository(HospitalContext context)\par
+        \{\par
+            \cf1 this\cf2 .ctx = context;\par
+        \}\par
+        \par
+        \cf6 //ritorna la lista di tutti i dipartimenti\cf2\par
+        \cf1 public\cf2  List<Dipartimenti> GetAllDipartimenti()\par
+        \{\par
+            \cf1 return\cf2  ctx.Dipartimenti.ToList();\par
+        \}\par
+\par
+        \cf6 //ritorna la lista di tutti i medici\cf2\par
+        \cf1 public\cf2  List<Medici> GetAllMedici()\par
+        \{\par
+            \cf1 return\cf2  ctx.Medici.ToList();\par
+        \}\par
+\par
+        \cf6 //ritorna la lista di medici + si porta dietro tutte le propriet\f2\'e0\f1  della classe Dipartimento grazie a "Dept"\cf2\par
+        \cf1 public\cf2  List<Medici> GetMediciPlus()\par
+        \{\par
+            \cf1 return\cf2  ctx.Medici.Include(d => d.Dept).ToList();\par
+        \}\par
+\par
+        \cf6 //ritorna una lista di medici in base al numero dato e all'ID del dipartimento.\cf2\par
+        \cf6 //QUERY: deptId = all'id del dipartimento che si inserice,medici ordinati per datadiassunzione, prende gli n dati utili indicati, \cf2\par
+        \cf6 // e include nel risultato l'oggetto Dipartimento Dept, che si porta dietro tutte le propriet\f2\'e0\f1  utili.\cf2\par
+        \cf1 public\cf2  List<Medici> MediciPiuAnziani (\cf1 int\cf2  n, \cf1 int\cf2  dipartimento)\par
+        \{\par
+            \cf1 return\cf2  ctx.Medici.Where(d => d.DeptId == dipartimento).OrderByDescending(x => x.DataAssunzione).Take(n).Include(x => x.Dept).ToList();\par
+        \}\line\line\lang1040\f2\par
+- Autogenerare i controllers con webapi+EF. Se non li fa scaricare il nuget codegenerator\line\line     \f1 [EnableCors(\cf4 "MyPolicyCORS"\cf2 )]\par
+    [Route(\cf4 "api/dipartimenti"\cf2 )]\par
+    [ApiController]\par
+    \cf1 public\cf2  \cf1 class\cf2  \cf5 DipartimentisController\cf2  : ControllerBase\par
+    \{\par
+        \cf1 private\cf2  Repository repo;\par
+\par
+        \cf1 public\cf2  DipartimentisController(Repository r)\par
+        \{\par
+            \cf1 this\cf2 .repo = r;\par
+        \}\par
+        \par
+        \cf6 // localhost/api/dipartimenti\cf2\par
+        [HttpGet]\par
+        \cf1 public\cf2  IEnumerable<Dipartimenti> GetDipartimenti()\par
+        \{\par
+            \cf1 return\cf2  repo.GetAllDipartimenti();\par
+        \}\cf0\lang16\ul\f0\par
+\pard\sa200\sl276\slmult1\line\line\pard\sl240\slmult1\cf2\lang1040\ulnone\f2     \lang16\f1 [EnableCors(\cf4 "MyPolicyCORS"\cf2 )]\par
+    [Route(\cf4 "api/medici"\cf2 )]\par
+    [ApiController]\par
+    \cf1 public\cf2  \cf1 class\cf2  \cf5 MedicisController\cf2  : Controller\par
+    \{\par
+        \cf1 private\cf2  Repository repo;\par
+\par
+        \cf1 public\cf2  MedicisController(Repository r)\par
+        \{\par
+            \cf1 this\cf2 .repo = r;\par
+        \}\par
+\par
+        \cf6 ////localhost/api/medici\cf2\par
+        \cf6 //[HttpGet]\cf2\par
+        \cf6 //public IActionResult GetMedici()\cf2\par
+        \cf6 //\{\cf2\par
+        \cf6 //    return repo.GetAllMedici().Select(m=>m.ToDTO());\cf2\par
+        \cf6 //\}\cf2\par
+\par
+        [HttpGet]\par
+        \cf1 public\cf2  List<MediciVModel> GetMedici (\cf1 int\cf2  numero, \cf1 int\cf2  dipartimento)\par
+        \{\par
+            \cf1 if\cf2 (numero == 0)\par
+            \{\par
+                \cf6 //se n = 0 allora te ne crea uno nuovo\cf2\par
+                \cf1 return\cf2  repo.GetMediciPlus().Select(m => \cf1 new\cf2  MediciVModel(m)).ToList()\cf6 /*.Select(m => m.ToDTO())*/\cf2 ;\par
+            \}\par
+            \cf1 else\cf2\par
+            \{\par
+                \cf6 //li seleziona e la menata del select \f2\'e8\f1  solo per far comparire il nome del dipartimento di fianco al medico\cf2\par
+                \cf1 return\cf2  repo.MediciPiuAnziani(numero, dipartimento).Select(m => \cf1 new\cf2  MediciVModel(m)).ToList();\par
+            \}\par
+        \}\cf0\ul\f0\par
+\pard\sa200\sl276\slmult1\par
+\ulnone - PARTE ANGULAR\ul\par
+\ulnone Aprire la cartella vuota, tasto dx+SHIFT, aprire finestra di comando e ng new nomeapp.\line Aggiungere subito le immagini dentro la cartella "img".\line Dentro il file padre Style.css incollare:\line\line\pard\sl240\slmult1 body \{\par
+    background-image: url(/img/sf.jpg);\par
+    background-size: cover;\par
+    border-bottom-left-radius: 20px;\par
+\}\par
+\par
+th\{\par
+    font-size: 18px;\par
+    color: black;\par
+    background-color: snow\par
+\}\par
+\pard\sa200\sl276\slmult1\line\pard\sl240\slmult1 - Cambiare l'Index.html con questo\line\line <!doctype html>\par
+<html lang="en">\par
+<head>\par
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">\par
+\par
+  <meta charset="utf-8">\par
+  <title>Ospedale website</title>\par
+  <base href="/">\par
+\par
+  <meta name="viewport" content="width=device-width, initial-scale=1">\par
+  <link rel="icon" type="image/x-icon" href="favicon.ico">\par
+</head>\par
+<body>\par
+  <app-root></app-root>\par
+</body>\par
+</html>\par
+\line - Cambiare l'appcomponent.html con il LAYOUT del sito\line\line <div style="text-align:center">\par
+  <img src="/img/WELCOME.png" style="widows: 400px;height:190px;margin-top: 20px;border-style: outset;border-color: crimson">\par
+</div>\par
+<div style="text-align: center">\par
+    <span class="badge badge-secondary" style="font-size:35px;margin-top:30px;margin-left:30px;">Premi un bottone per visualizzare le informazioni richieste</span>\par
+  </div>\par
+<br>\par
+      <div style="text-align:center">\par
+          <a class="zio" routerLinkActive='active' [routerLink]="['/mioprofilo']">\par
+            <button class="button button-clear" style="\par
+              cursor: pointer;\par
+              text-align: center;\par
+              font: bold 15px Arial, Helvetica, sans-serif;\par
+              color: rgb(0, 0, 0);\par
+              padding: 10px 20px;\par
+              border: outset 3px #0076a3;\par
+              background: #77d1f1;\par
+              margin-top: 30px">HOME</button></a>\par
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\par
+          <a class="zio" routerLinkActive='active' [routerLink]="['/medici']">\par
+            <button class="button button-clear" style="\par
+              cursor: pointer;\par
+              text-align: center;\par
+              font: bold 15px Arial, Helvetica, sans-serif;\par
+              color: rgb(0, 0, 0);\par
+              padding: 10px 20px;\par
+              border: outset 3px #0076a3;\par
+              background: #77d1f1;\par
+              margin-top: 30px">Mostra i medici</button></a>\par
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\par
+          <a class="zio" routerLinkActive='active' [routerLink]="['/medicianziani']">\par
+            <button class="button button-clear" style="\par
+              cursor: pointer;\par
+              text-align: center;\par
+              font: bold 15px Arial, Helvetica, sans-serif;\par
+              color: rgb(0, 0, 0);\par
+              padding: 10px 20px;\par
+              border: outset 3px #0076a3;\par
+              background: #77d1f1;\par
+              margin-top: 30px">Mostra anzianit\'e0</button></a>\par
+      </div>\par
+\par
+<router-outlet></router-outlet>\line\line\par
+- Nell'appcomponent.ts eliminare la variabile del titolo\line\line - Creare il welcomecomponent che al suo interno avr\'e0 solamente qualche scritta base per l'home page\line\line <b>\par
+<div style="font-size:21px;font-style:italic;color:firebrick;margin: 70px">\par
+  <ul>\par
+    In questa pagina potrai:\par
+    <li>\par
+      visualizzare la lista dei medici con relativo dipartimento associato\par
+    </li>\par
+    <li>\par
+      cercare gli n medici con pi\'f9 anzianit\'e0 per un dato dipartimento\par
+    </li>\par
+  </ul>\par
+</div>\par
+</b>\par
+\par
+- Passaggio fondamentale creare i path per i collegamenti tra le pagine\line\line import \{ BrowserModule \} from '@angular/platform-browser';\par
+import \{ NgModule \} from '@angular/core';\par
+import \{ RouterModule \} from '@angular/router';\par
+import \{ AppComponent \} from './app.component';\par
+import \{ WelcomeComponent \} from './welcome/welcome.component';\par
+import \{ HttpClientModule \} from '@angular/common/http';\par
+import \{ MediciComponent \} from './medici/medici.component';\par
+import \{ MediciModule \} from './medici/medici.module';\par
+\par
+@NgModule(\{\par
+  declarations: [\par
+    AppComponent,\par
+    WelcomeComponent,\par
+  ],\par
+  imports: [\par
+    BrowserModule,\par
+    HttpClientModule,\par
+    RouterModule.forRoot([\par
+      \{path: 'home', component: WelcomeComponent\},\par
+      \{path: '', redirectTo:'home',pathMatch:'full'\},\par
+      \{path:'**', redirectTo:'home', pathMatch:'full'\}\par
+    ]),\par
+    MediciModule\par
+  ],\par
+  providers: [],\par
+  bootstrap: [AppComponent]\par
+\})\par
+export class AppModule \{ \}\line\line - Creare il componente su cui si fa l'ngfor per creare una tabella:\ul\line\line\ulnone MEDICISERVICE.TS\line @Injectable(\{\par
+  providedIn: 'root',\par
+\})\par
+export class MediciService \{\par
+\par
+  private mediciUrl="https://localhost:44365/api/medici";\par
+  private dipartimentiURL="https://localhost:44365/api/dipartimenti"\par
+  constructor(private http: HttpClient) \{ \}\par
+\par
+  getMedici(): Observable<Medico[]> \{\par
+    return this.http.get<Medico[]>(this.mediciUrl)\par
+      .pipe(\par
+        tap(data => console.log(JSON.stringify(data)))\par
+      );\par
+  \}\par
+\par
+  getDipartimenti():Observable<Dipartimento[]>\par
+  \{\par
+    return this.http.get<Dipartimento[]>(this.dipartimentiURL)\par
+    .pipe(\par
+      tap(data => console.log(JSON.stringify(data)))\par
+    );\par
+  \}\par
+\par
+  getImpiegatiAnziani(num:number,dipartimento:number):Observable<Medico[]>\par
+  \{\par
+    return this.http.get<Medico[]>(this.mediciUrl+"?numero="+num+"&dipartimento="+dipartimento)\par
+    .pipe(\par
+      tap(data => console.log(JSON.stringify(data)))\par
+    );\par
+  \}\par
+\}\par
+\par
+MEDICIMODULE.TS\par
+\par
+@NgModule(\{\par
+  imports: [\par
+    CommonModule,\par
+    FormsModule,\par
+    RouterModule.forChild([\par
+      \{ path: 'medici', component: MediciComponent \},\par
+      \{ path: 'medicianziani', component: MediciAnziani \},\par
+       ])\par
+  ],\par
+  declarations: [MediciComponent,MediciAnziani]\par
+\})\par
+export class MediciModule \{ \}\ul\par
+\par
+\ulnone MEDICICOMPONENT.TS\line\line import \{ Component, OnInit \} from '@angular/core';\par
+import \{ Medico \} from './medico';\par
+import \{ MediciService \} from './medici.service';\par
+\par
+@Component(\{\par
+  selector: 'app-medici',\par
+  templateUrl: './medici.component.html',\par
+  styleUrls: ['./medici.component.css']\par
+\})\par
+export class MediciComponent implements OnInit \{\par
+\par
+  private medici:Medico[];\par
+  errormessage:string;\par
+\par
+  constructor(private service:MediciService) \{ \}\par
+\par
+  ngOnInit() \{\par
+    this.service.getMedici().subscribe(\par
+      medici => \{\par
+        this.medici = medici;\par
+      \},\par
+      error => this.errormessage = <any>error\par
+    );\par
+  \}\par
+\par
+\}\par
+\line MEDICICOMPONENT.HTML\line\line <table class="table" style="margin-left:35px;width: 900px;position: absolute;left: 520px;margin-top: 80px;border-style: double;border-color: black;">\par
+    <thead style="border-style: double;border-color:black;">\par
+        <tr>\par
+            <th>\par
+              ID \par
+            </th>\par
+            <th>\par
+              NOME\par
+            </th>\par
+            <th>\par
+              COGNOME\par
+            </th>\par
+            <th>\par
+              DATA DI NASCITA\par
+            </th>\par
+            <th>\par
+              ASSUNZIONE\par
+            </th>\par
+            <th>\par
+              ID DIPARTIMENTO\par
+            </th>\par
+        </tr>\par
+    </thead>\par
+    <tbody>\par
+        <tr class="card" *ngFor='let medico of medici'>\par
+            <td >\{\{medico.idMedico\}\}</td>\par
+            <td >\{\{medico.nome\}\}</td>\par
+            <td >\{\{medico.cognome\}\}</td>\par
+            <td >\{\{medico.dataNascita\}\}</td>\par
+            <td >\{\{medico.dataAssunzione\}\}</td>\par
+            <td >\{\{medico.dipartimento\}\}</td>\par
+        </tr>\par
+    </tbody>      \line\line MEDICO.TS\line\line export class Medico\{\par
+    idMedico:number;\par
+    nome:string;\par
+    cognome:string;\par
+    dataNascita:Date;\par
+    dataAssunzione:Date;\par
+    dipartimento:string;\par
+\}\line\line -A QUESTO PUNTO SI AGGIUNGE IL COMPONENTE PER GLI ANZIANI\line\line ANZIANI.TS\line\line import \{ Component, OnInit \} from '@angular/core';\par
+import \{ Dipartimento \} from './dipartimento';\par
+import \{ Medico \} from './medico';\par
+import \{ MediciService \} from './medici.service';\par
+\par
+@Component(\{\par
+  templateUrl: './medicianziani.html',\par
+  styleUrls: ['./medicianziani.css']\par
+\})\par
+export class MediciAnziani  implements OnInit \{\par
+\par
+    private medici:Medico[];\par
+    private dipartimenti:Dipartimento[];\par
+    private _numero:number;\par
+    private _dipartimento:number;\par
+    errorMessage:string;\par
+  \par
+    constructor(private  service:MediciService) \{\par
+        this.numero=2;\par
+        this.dipartimento=null;\par
+    \}\par
+  \par
+    set numero(x:number)\par
+    \{\par
+        if(x>0)\par
+        \{\par
+            this._numero=x;\par
+            this.onChange(); //richiama qui onchange\par
+        \}\par
+    \}\par
+  \par
+    get numero()\par
+    \{\par
+        return this._numero;\par
+    \}\par
+  \par
+    set dipartimento(x:number)\par
+    \{\par
+      this._dipartimento=x;\par
+      this.onChange();//richiama qui onchange\par
+    \}\par
+  \par
+    get dipartimento()\par
+    \{\par
+        return this._dipartimento;\par
+    \}\par
+  \par
+    ngOnInit(): void \{\par
+      this.service.getDipartimenti().subscribe(\par
+          dipartimenti => \{\par
+            this.dipartimenti = dipartimenti;\par
+          \},\par
+          error => this.errorMessage = <any>error\par
+        );\par
+    \}\par
+  \par
+    onChange()\par
+    \{\par
+      this.service.getImpiegatiAnziani(this.numero,this.dipartimento).subscribe(\par
+          medici => \{\par
+            this.medici = medici;\par
+          \},\par
+          error => this.errorMessage = <any>error\par
+        );\par
+    \}\par
+\}\line\line ANZIANI.HTML\line\line <div class="table" style="margin-left:35px;width: 900px;position: absolute;left: 520px;margin-top: 80px;border-style: double;border-color: black;">\par
+        <div style="margin-left:35px;margin-top: 20px">\par
+            <span>Numero risultati</span><br/>\par
+            <input type="number" [(ngModel)]=numero  ><br/>\par
+            <select class="form-control" [(ngModel)]=dipartimento>\par
+            <option value=""\par
+            disabled\par
+            selected\par
+            hidden>Seleziona un dipartimento</option>\par
+            <option *ngFor= 'let dipartimento of dipartimenti' [value] = 'dipartimento.idDipartimento' style="margin-right:100px"> \{\{dipartimento.nome\}\} </option>\par
+            </select>\par
+        </div>\par
+\par
+        <b><div class="card" *ngFor='let medico of medici' style="margin-left:35px;margin-top: 20px; margin-bottom: 20px">\par
+            <span >Id: \{\{medico.idMedico\}\}</span><br/>\par
+            <span >Nome: \{\{medico.nome\}\}</span><br/>\par
+            <span >Nome: \{\{medico.cognome\}\}</span><br/>\par
+            <span >Data Nascita: \{\{medico.dataNascita\}\}</span><br/>\par
+            <span >Data Assunzione: \{\{medico.dataAssunzione\}\}</span><br/>\par
+            <span >Dipartimento: \{\{medico.dipartimento\}\}</span><br/>\par
+        </div></b>\par
+}
+ 

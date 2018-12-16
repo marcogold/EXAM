@@ -1,0 +1,238 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1040{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset0 Consolas;}{\f2\fnil Consolas;}}
+{\colortbl ;\red0\green255\blue0;\red0\green0\blue255;\red0\green0\blue0;\red163\green21\blue21;\red0\green128\blue0;\red0\green255\blue255;}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sa200\sl276\slmult1\highlight1\lang16\f0\fs28 MVC -[POST]\highlight0\fs22\par
+\pard\sl240\slmult1\cf2\lang1040\f1\fs19 -Repository-\lang16\f2\line\pard\li720\sl240\slmult1 public\cf3  \cf2 void\cf3  Add(Docente doc)\par
+\{\par
+\lang1040\f1\tab\cf2\lang16\f2 this\cf3 .context.Docenti.Add(doc);\par
+\}\line\pard\sl240\slmult1\line\cf0\f0\fs22 -Controller-\line\cf3\f2\fs19         \cf2 public\cf3  IActionResult Inserisci()\par
+        \{\par
+            \cf2 return\cf3  View();\par
+        \}\par
+\par
+        [HttpPost]\par
+        \cf2 public\cf3  IActionResult Inserisci(Corso corso)\par
+        \{\par
+            \cf2 if\cf3  (ModelState.IsValid)\par
+            \{\par
+                repo.Add(corso);\par
+                \cf2 return\cf3  RedirectToAction(\cf4 "InserimentoCompleto"\cf3 ); \par
+            \}\par
+\par
+            \cf2 return\cf3  View(corso);\par
+        \}\line\line\lang1040\f1 oppure\line\f2         [HttpPost]\par
+        [ValidateAntiForgeryToken]\par
+        \cf2 public\cf3  \cf2 async\cf3  Task<IActionResult> Create\f1  (\f2 Relatives relatives)\par
+        \{\par
+\par
+                _context.Add(relatives);\par
+                \cf2 await\cf3  _context.SaveChangesAsync();\par
+                \cf5 //return RedirectToAction(nameof(Index));\cf3\par
+\par
+            \cf2 return\cf3  RedirectToAction(\cf4 "Index"\cf3 , \cf4 "MyProfile"\cf3 ); \par
+        \}\line\line\cf0\highlight1\lang16\f0\fs28 API -[POST]\line\line\cf2\highlight0\lang1040\f1\fs19\tab  \lang16\f2 private\cf3  PatientContext ctx;\par
+        \cf2 private\cf3  RelativesRepo repo;\par
+        \cf2 public\cf3  \cf2 const\cf3  \cf2 string\cf3  ROUTE_GET_RELATIVES = \cf4 "ROUTE_GET_RELATIVES"\cf3 ;\par
+\par
+        \cf2 public\cf3  RelativesController(PatientContext context)\par
+        \{\par
+            \cf2 this\cf3 .ctx = context;\par
+            \cf2 this\cf3 .repo = \cf2 new\cf3  RelativesRepo(ctx);\par
+        \}\line\line\cf0\f0\fs28\line\cf3\f2\fs19         \cf5 // POST: api/Relatives\cf3\par
+        [HttpPost]\par
+        \cf2 public\cf3  IActionResult PostRelatives([FromBody] Relatives relative)\par
+        \{\par
+            \cf2 if\cf3 (relative == \cf2 null\cf3 )\par
+            \{\par
+                \cf2 return\cf3  BadRequest();\par
+            \}\par
+\par
+            repo.Add(relative);\par
+\par
+            \cf2 return\cf3  CreatedAtAction(ROUTE_GET_RELATIVES, \cf2 new\cf3  \{ id = relative.RelativeId \}, relative);\par
+        \}\line\line\highlight1\lang1040\f1\fs32 ANGULAR\highlight0\fs19\line\line\highlight6 Module.ts\line\highlight0\line\{path:'addinstructor', component : InstructorInsertComponent\},\line\line\highlight6 Instructorinsert.ts\line\highlight0\line import \{ Component, OnInit \} from '@angular/core';\par
+import \{ InstructorForm \} from './instructor';\par
+import \{ NgForm \} from '@angular/forms';\par
+import \{ NgModule \} from "@angular/core";\par
+import \{ ActivatedRoute, Router \} from '@angular/router';\par
+import \{ HttpClient \} from '@angular/common/http';\par
+import \{ tap \} from 'rxjs/operators';\par
+\par
+\par
+\par
+@Component(\{\par
+  selector: 'app-instructor-insert',\par
+  templateUrl: './instructor-insert.component.html',\par
+  styleUrls: ['./instructor-insert.component.css']\par
+\})\par
+export class InstructorInsertComponent implements OnInit \{\par
+  customer = new InstructorForm();\par
+  instructorUrl : string = '{\field{\*\fldinst{HYPERLINK "http://localhost:56871/api/Docenti"}}{\fldrslt{\ul\cf2 http://localhost:56871/api/Docenti}}}\f1\fs19 ';\par
+\par
+\par
+  constructor(private route: ActivatedRoute,\par
+    private router: Router,\par
+    private http:HttpClient) \{ \}\par
+\par
+  ngOnInit() \{\par
+  \}\par
+\par
+  save(customerForm: NgForm) \{\par
+ \par
+    let result = this.http.post<InstructorForm>(this.instructorUrl,customerForm.value).pipe(\par
+        tap(d => console.log(JSON.stringify(d)))\par
+    );\par
+\par
+    result.subscribe(x=>console.log(x));\par
+    return result;\par
+  \}\par
+\par
+\}\line\line\highlight6 instructorinsert.html\line\highlight0\line <div class="instructor">\par
+  <div class="instructor-header">\par
+    Aggiungi Docente\par
+  </div>\par
+\par
+  <div class="instructor-body">\par
+    <form novalidate\par
+          autocomplete="off"\par
+          (ngSubmit)="save(signupForm)"\par
+          #signupForm="ngForm">\par
+\par
+      <div class="form-group row">\par
+        <label class="col-md-2 col-form-label"\par
+               for="firstNameId">Name</label>\par
+        <div class="col-md-8">\par
+          <input class="form-control"\par
+                 id="firstNameId"\par
+                 type="text"\par
+                 placeholder="Name (required)"\par
+                 required\par
+                 minlength="3"\par
+                 [(ngModel)]=customer.nome\par
+                 name="nome"\par
+                 #firstNameVar="ngModel"\par
+                 [ngClass]="\{'is-invalid': (firstNameVar.touched || firstNameVar.dirty) && !firstNameVar.valid \}" />\par
+          <span class="invalid-feedback">\par
+            <span *ngIf="firstNameVar.errors?.required">\par
+              Please enter your first name.\par
+            </span>\par
+            <span *ngIf="firstNameVar.errors?.minlength" style="color:crimson">\par
+              The first name must be longer than 3 characters.\par
+            </span>\par
+          </span>\par
+        </div>\par
+      </div>\par
+\par
+      <div class="form-group row">\par
+        <label class="col-md-2 col-form-label"\par
+               for="lastNameId">Cognome</label>\par
+        <div class="col-md-8">\par
+          <input class="form-control"\par
+                 id="lastNameId"\par
+                 type="text"\par
+                 placeholder="Last Name (required)"\par
+                 required\par
+                 maxlength="50"\par
+                 [(ngModel)]="customer.cognome"\par
+                 name="cognome"\par
+                 #lastNameVar="ngModel"\par
+                 [ngClass]="\{'is-invalid': (lastNameVar.touched || lastNameVar.dirty) && !lastNameVar.valid \}" />\par
+          <span class="invalid-feedback">\par
+            <span *ngIf="lastNameVar.errors?.required">\par
+              Please enter your last name.\par
+            </span>\par
+          </span>\par
+        </div>\par
+      </div>\par
+\par
+      <div class="form-group row">\par
+        <label class="col-md-2 col-form-label"\par
+               for="emailId">Codice Fiscale</label>\par
+        <div class="col-md-8">\par
+          <input class="form-control"\par
+                 id="codFId"\par
+                 type="text"\par
+                 placeholder="C.F. (required)"\par
+                 required\par
+                 [(ngModel)]="customer.cF"\par
+                 name="cF"\par
+                 #codFVar="ngModel"\par
+                 [ngClass]="\{'is-invalid': (codFVar.touched || codFVar.dirty) && !codFVar.valid \}" />\par
+          <span class="invalid-feedback">\par
+            <span *ngIf="codFVar.errors?.required">\par
+              Please enter your C.F.\par
+            </span>\par
+          </span>\par
+        </div>\par
+      </div>\par
+\par
+      <div class="form-group row">\par
+        <label class="col-md-2 col-form-label"\par
+               for="typeInstructor">Tipo Docente</label>\par
+        <div class="col-md-8">\par
+          <input class="form-control"\par
+                 id="typeInstructor"\par
+                 type="text"\par
+                 placeholder="Type (required)"\par
+                 required\par
+                 maxlength="20"\par
+                 [(ngModel)]=customer.tipoDocente\par
+                 name="tipoDocente"\par
+                 #TypeVar="ngModel"\par
+                 [ngClass]="\{'is-invalid': (TypeVar.touched || TypeVar.dirty) && !TypeVar.valid \}" />\par
+          <span class="invalid-feedback">\par
+            <span *ngIf="TypeVar.errors?.required">\par
+              Please enter your type.\par
+            </span>\par
+            <span *ngIf="TypeVar.errors?.maxlength">\par
+              The type must be short than 20 characters.\par
+            </span>\par
+          </span>\par
+        </div>\par
+      </div>\par
+\par
+      <div class="form-group row">\par
+        <label class="col-md-2 col-form-label"\par
+               for="typeInstructor">Data di nascita</label>\par
+        <div class="col-md-8">\par
+          <input class="form-control"\par
+                 id="typeInstructor"\par
+                 type="date"\par
+                 placeholder="Type (required)"\par
+                 required\par
+                 maxlength="20"\par
+                 [(ngModel)]=customer.dataNascita\par
+                 name="dataNascita"\par
+                 #TypeVar="ngModel"\par
+                 [ngClass]="\{'is-invalid': (TypeVar.touched || TypeVar.dirty) && !TypeVar.valid \}" />\par
+          <span class="invalid-feedback">\par
+            <span *ngIf="TypeVar.errors?.required">\par
+              Please enter your type.\par
+            </span>\par
+            <span *ngIf="TypeVar.errors?.maxlength">\par
+              The type must be short than 20 characters.\par
+            </span>\par
+          </span>\par
+        </div>\par
+      </div>\par
+\par
+      <div class="form-group row">\par
+        <div class="col-md-4">\par
+          <span>\par
+            <button class="btn btn-primary"\par
+                    type="submit"\par
+                    [disabled]="!signupForm.valid"\par
+                    >\par
+              Save\par
+            </button>\par
+          </span>\par
+        </div>\par
+      </div>\par
+    </form>\par
+  </div>\par
+</div>\par
+<br>Dirty: \{\{ signupForm.dirty \}\}\par
+<br>Touched: \{\{ signupForm.touched \}\}\par
+<br>Valid: \{\{ signupForm.valid \}\}\par
+<br>Value: \{\{ signupForm.value | json \}\}\cf0\lang16\f0\fs22\par
+}
+ 
